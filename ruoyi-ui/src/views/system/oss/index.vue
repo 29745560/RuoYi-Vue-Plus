@@ -128,7 +128,7 @@
       <el-table-column label="文件名" align="center" prop="fileName" />
       <el-table-column label="原名" align="center" prop="originalName" />
       <el-table-column label="文件后缀" align="center" prop="fileSuffix" />
-      <el-table-column label="文件展示" align="center" prop="url">
+      <el-table-column label="文件展示" align="center" prop="url" show-overflow-tooltip>
         <template slot-scope="scope">
           <ImagePreview
             v-if="previewListResource && checkFileSuffix(scope.row.fileSuffix)"

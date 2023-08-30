@@ -5,6 +5,22 @@
  * Copyright (c) 2019 ruoyi
  */
 
+/**
+ * 判断是否为空
+ */
+export function isNull(val) {
+  if (val === null || val === undefined || val === 'null' || val === 'undefined' || val === '') return true;
+  if (typeof val === 'boolean') return false
+  if (typeof val === 'number') return false
+  if (val instanceof Array) {
+    if (val.length === 0) return true
+  }
+  if (val instanceof Object) {
+    if (JSON.stringify(val) === '{}') return true
+  }
+  return false
+}
+
 // 日期格式化
 export function parseTime(time, pattern) {
   if (arguments.length === 0 || !time) {

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.cms.mapper.CmsRoomRecordMapper">
+
+    <resultMap type="CmsRoomRecord" id="CmsRoomRecordResult">
+        <id property="id" column="id"/>
+        <result property="roomId" column="room_id"/>
+        <result property="cardId" column="card_id"/>
+        <result property="checkInDate" column="check_in_date"/>
+        <result property="checkOutDate" column="check_out_date"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="remark" column="remark"/>
+        <association property="room" column="room_id" javaType="CmsRoom" resultMap="roomResult"/>
+        <association property="guest" column="card_id" javaType="CmsGuest" resultMap="guestResult"/>
+    </resultMap>
+
+    <resultMap id="roomResult" type="CmsRoom">
+        <id property="id" column="room_id"/>
+        <result property="name" column="room_name"/>
+    </resultMap>
+
+    <resultMap id="guestResult" type="CmsGuest">
+        <id property="cardId" column="card_id"/>
+        <result property="realname" column="realname"/>
+        <result property="phone" column="phone"/>
+    </resultMap>
+
+    <sql id="selectRoomRecordVo">
+        select r.id,
+               r.room_id,
+               r.card_id,
+               r.check_in_date,
+               r.check_out_date,
+               r.create_by,
+               r.create_time,
+               r.update_by,
+               r.update_time,
+               r.remark,
+               m.name as room_name,
+               g.realname,
+               g.phone
+        from biz_room_record as r
+                 left join biz_room as m on m.id = r.room_id
+                 left join biz_guest as g on g.card_id = r.card_id
+    </sql>
+
+    <select id="selectPageRoomRecordList" resultMap="CmsRoomRecordResult">
+        <include refid="selectRoomRecordVo"/>
+        ${ew.getCustomSqlSegment}
+    </select>
+
+    <select id="selectRoomRecordList" resultMap="CmsRoomRecordResult">
+        <include refid="selectRoomRecordVo"/>
+        ${ew.getCustomSqlSegment}
+    </select>
+
+    <select id="selectRoomRecordById" parameterType="Long" resultMap="CmsRoomRecordResult">
+        <include refid="selectRoomRecordVo"/>
+        where r.id = #{id}
+    </select>
+
+</mapper>

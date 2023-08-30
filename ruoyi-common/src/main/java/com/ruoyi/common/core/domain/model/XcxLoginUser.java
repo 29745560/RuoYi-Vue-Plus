@@ -13,12 +13,25 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class XcxLoginUser extends LoginUser {
-
     private static final long serialVersionUID = 1L;
 
     /**
-     * openid
+     * 微信用户唯一标识
      */
-    private String openid;
+    private String openId;
 
+    /**
+     * 微信开放平台唯一标识
+     */
+    private String unionId;
+
+    /**
+     * 会话密钥
+     */
+    private String sessionKey;
+
+    /**
+     * 联系方式
+     */
+    private String phonenumber;
 }

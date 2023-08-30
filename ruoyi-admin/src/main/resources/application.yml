@@ -16,7 +16,7 @@ ruoyi:
 captcha:
   # 页面 <参数设置> 可开启关闭 验证码校验
   # 验证码类型 math 数组计算 char 字符验证
-  type: MATH
+  type: CHAR
   # line 线段干扰 circle 圆圈干扰 shear 扭曲干扰
   category: CIRCLE
   # 数字验证码位数
@@ -27,7 +27,7 @@ captcha:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
-  port: 8080
+  port: 8081
   servlet:
     # 应用的访问路径
     context-path: /
@@ -106,7 +106,7 @@ sa-token:
   timeout: 86400
   # 多端不同 token 有效期 可查看 LoginHelper.loginByDevice 方法自定义
   # token最低活跃时间 (指定时间无操作就过期) 单位: 秒
-  active-timeout: 1800
+  active-timeout: 21600
   # 是否允许同一账号并发登录 (为true时允许一起登录, 为false时新登录挤掉旧登录)
   is-concurrent: true
   # 在多人登录同一账号时，是否共用一个token (为true时所有登录共用一个token, 为false时每次登录新建一个token)
@@ -201,9 +201,9 @@ springdoc:
   api-docs:
     # 是否开启接口文档
     enabled: true
-#  swagger-ui:
-#    # 持久化认证数据
-#    persistAuthorization: true
+  #  swagger-ui:
+  #    # 持久化认证数据
+  #    persistAuthorization: true
   info:
     # 标题
     title: '标题：${ruoyi.name}后台管理系统_接口文档'
@@ -268,3 +268,12 @@ management:
       show-details: ALWAYS
     logfile:
       external-file: ./logs/sys-console.log
+
+# 微信小程序配置
+wechat:
+  appId: wx0c9783f1a8d7a1d0
+  secret: 31d0c6acd0e23f5b8b3cc5d0ad8df234
+  accessTokenUrl: https://api.weixin.qq.com/cgi-bin/token
+  userPhoneNumberUrl: https://api.weixin.qq.com/wxa/business/getuserphonenumber
+  jsCode2sessionUrl: https://api.weixin.qq.com/sns/jscode2session
+  genLinkUrl: https://api.weixin.qq.com/wxa/generate_urllink

@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.constraints.NotBlank;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,22 +83,6 @@ public class SysLoginController {
         Map<String, Object> ajax = new HashMap<>();
         // 生成令牌
         String token = loginService.emailLogin(body.getEmail(), body.getEmailCode());
-        ajax.put(Constants.TOKEN, token);
-        return R.ok(ajax);
-    }
-
-    /**
-     * 小程序登录(示例)
-     *
-     * @param xcxCode 小程序code
-     * @return 结果
-     */
-    @SaIgnore
-    @PostMapping("/xcxLogin")
-    public R<Map<String, Object>> xcxLogin(@NotBlank(message = "{xcx.code.not.blank}") String xcxCode) {
-        Map<String, Object> ajax = new HashMap<>();
-        // 生成令牌
-        String token = loginService.xcxLogin(xcxCode);
         ajax.put(Constants.TOKEN, token);
         return R.ok(ajax);
     }

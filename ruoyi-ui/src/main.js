@@ -16,9 +16,10 @@ import { download } from '@/utils/request'
 
 import './assets/icons' // icon
 import './permission' // permission control
+import { CmsOptions } from "@/assets/json/cms.js";
 import { getDicts } from "@/api/system/dict/data";
 import { getConfigKey, updateConfigByKey } from "@/api/system/config";
-import { parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, handleTree } from "@/utils/ruoyi";
+import { isNull, parseTime, resetForm, addDateRange, selectDictLabel, selectDictLabels, handleTree } from "@/utils/ruoyi";
 // 分页组件
 import Pagination from "@/components/Pagination";
 // 自定义表格工具组件
@@ -33,12 +34,16 @@ import ImageUpload from "@/components/ImageUpload"
 import ImagePreview from "@/components/ImagePreview"
 // 字典标签组件
 import DictTag from '@/components/DictTag'
+// 自定义标签组件
+import OptionTag from '@/components/OptionTag'
 // 头部标签组件
 import VueMeta from 'vue-meta'
 // 字典数据组件
 import DictData from '@/components/DictData'
 
 // 全局方法挂载
+Vue.prototype.CmsDic = CmsOptions
+Vue.prototype.isnull = isNull
 Vue.prototype.getDicts = getDicts
 Vue.prototype.getConfigKey = getConfigKey
 Vue.prototype.updateConfigByKey = updateConfigByKey
@@ -52,6 +57,7 @@ Vue.prototype.handleTree = handleTree
 
 // 全局组件挂载
 Vue.component('DictTag', DictTag)
+Vue.component('OptionTag', OptionTag)
 Vue.component('Pagination', Pagination)
 Vue.component('RightToolbar', RightToolbar)
 Vue.component('Editor', Editor)

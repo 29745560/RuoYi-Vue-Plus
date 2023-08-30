@@ -72,5 +72,9 @@ public interface Constants {
      */
     String TOKEN = "token";
 
+    /**
+     * 过期
+     */
+    String EXPIRE = "expire";
 }
 

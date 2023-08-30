@@ -134,4 +134,10 @@ public interface UserConstants {
      */
     String ADMIN_ROLE_KEY = "admin";
 
+    /**
+     * 用户来源
+     */
+    String SOURCE_H5 = "1";
+    String SOURCE_WECHAT = "2";
+    String SOURCE_APP = "3";
 }
