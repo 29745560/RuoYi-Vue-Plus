@@ -35,7 +35,11 @@
       <el-table-column label="身份证号" prop="cardId" show-overflow-tooltip/>
       <el-table-column label="总计积分" prop="scoreTotal" align="center"/>
       <el-table-column label="可用积分" prop="scoreUsable" align="center"/>
-      <el-table-column label="账户状态" prop="status" align="center"/>
+      <el-table-column label="账户状态" prop="status" align="center" width="100">
+        <template slot-scope="scope">
+          <option-tag :options="scoreStatus" :value="scope.row.status"/>
+        </template>
+      </el-table-column>
       <el-table-column label="创建时间" prop="createTime" align="center" width="180">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
@@ -74,7 +78,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 旅客积分表格数据
+      // 宾客积分表格数据
       scoreList: [],
       // 查询参数
       queryParams: {
@@ -91,7 +95,7 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询旅客积分列表 */
+    /** 查询宾客积分列表 */
     getList() {
       this.loading = true;
       listGuestScore(this.queryParams).then(response => {

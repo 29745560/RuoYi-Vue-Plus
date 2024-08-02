@@ -44,14 +44,19 @@ public class CmsRoomRecordBo extends BaseEntity {
     /**
      * 真实姓名
      */
-    @Size(min = 0, max = 50, message = "真实姓名长度不能超过50个字符")
+    @Size(min = 0, max = 30, message = "真实姓名长度不能超过30个字符")
     private String realname;
 
     /**
-     * 手机号码
+     * 联系方式
      */
-    @Size(min = 0, max = 50, message = "手机号码长度不能超过50个字符")
-    private String phone;
+    @Size(min = 0, max = 50, message = "联系方式长度不能超过50个字符")
+    private String contact;
+
+    /**
+     * 宾客性别（0男 1女 2未知）
+     */
+    private String sex;
 
     /**
      * 入住日期
@@ -66,6 +71,11 @@ public class CmsRoomRecordBo extends BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     @NotNull(message = "离店日期不能为空", groups = {AddGroup.class, EditGroup.class})
     private Date checkOutDate;
+
+    /**
+     * 支付状态（0未支付 1已支付）
+     */
+    private String pay;
 
     /**
      * 备注

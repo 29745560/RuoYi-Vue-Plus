@@ -1,54 +1,54 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-        <div class="card-panel-icon-wrapper icon-people">
-          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            访客
-          </div>
-          <count-to :start-val="0" :end-val="102400" :duration="2600" class="card-panel-num" />
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
-        <div class="card-panel-icon-wrapper icon-message">
-          <svg-icon icon-class="message" class-name="card-panel-icon" />
-        </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">
-            消息
-          </div>
-          <count-to :start-val="0" :end-val="81212" :duration="3000" class="card-panel-num" />
-        </div>
-      </div>
-    </el-col>
-    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
       <div class="card-panel" @click="handleSetLineChartData('purchases')">
         <div class="card-panel-icon-wrapper icon-money">
-          <svg-icon icon-class="money" class-name="card-panel-icon" />
+          <svg-icon icon-class="money" class-name="card-panel-icon"/>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            金额
+            营业额
           </div>
-          <count-to :start-val="0" :end-val="9280" :duration="3200" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="3280" :duration="3200" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('shoppings')">
-        <div class="card-panel-icon-wrapper icon-shopping">
-          <svg-icon icon-class="shopping" class-name="card-panel-icon" />
+      <div class="card-panel" @click="handleSetLineChartData('order')">
+        <div class="card-panel-icon-wrapper icon-order">
+          <svg-icon icon-class="shopping" class-name="card-panel-icon"/>
         </div>
         <div class="card-panel-description">
           <div class="card-panel-text">
-            订单
+            订单数
           </div>
-          <count-to :start-val="0" :end-val="13600" :duration="3600" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="18" :duration="3000" class="card-panel-num"/>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('room')">
+        <div class="card-panel-icon-wrapper icon-room">
+          <svg-icon icon-class="room" class-name="card-panel-icon"/>
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            房间数
+          </div>
+          <count-to :start-val="0" :end-val="5" :duration="2600" class="card-panel-num"/>
+        </div>
+      </div>
+    </el-col>
+    <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
+      <div class="card-panel" @click="handleSetLineChartData('guest')">
+        <div class="card-panel-icon-wrapper icon-guest">
+          <svg-icon icon-class="peoples" class-name="card-panel-icon"/>
+        </div>
+        <div class="card-panel-description">
+          <div class="card-panel-text">
+            宾客数
+          </div>
+          <count-to :start-val="0" :end-val="16" :duration="3600" class="card-panel-num"/>
         </div>
       </div>
     </el-col>
@@ -60,13 +60,13 @@ import CountTo from 'vue-count-to'
 
 export default {
   components: {
-    CountTo
+    CountTo,
   },
   methods: {
     handleSetLineChartData(type) {
       this.$emit('handleSetLineChartData', type)
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -94,37 +94,37 @@ export default {
         color: #fff;
       }
 
-      .icon-people {
-        background: #40c9c6;
-      }
-
-      .icon-message {
-        background: #36a3f7;
-      }
-
       .icon-money {
         background: #f4516c;
       }
 
-      .icon-shopping {
+      .icon-order {
         background: #34bfa3
       }
-    }
 
-    .icon-people {
-      color: #40c9c6;
-    }
+      .icon-room {
+        background: #36a3f7;
+      }
 
-    .icon-message {
-      color: #36a3f7;
+      .icon-guest {
+        background: #40c9c6;
+      }
     }
 
     .icon-money {
       color: #f4516c;
     }
 
-    .icon-shopping {
+    .icon-order {
       color: #34bfa3
+    }
+
+    .icon-room {
+      color: #36a3f7;
+    }
+
+    .icon-guest {
+      color: #40c9c6;
     }
 
     .card-panel-icon-wrapper {
@@ -160,7 +160,7 @@ export default {
   }
 }
 
-@media (max-width:550px) {
+@media (max-width: 550px) {
   .card-panel-description {
     display: none;
   }

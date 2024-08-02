@@ -6,6 +6,7 @@
 
     <resultMap type="CmsRoom" id="CmsRoomResult">
         <id property="id" column="id"/>
+        <result property="categoryId" column="category_id"/>
         <result property="name" column="name"/>
         <result property="roomRecordId" column="room_record_id"/>
         <result property="status" column="status"/>

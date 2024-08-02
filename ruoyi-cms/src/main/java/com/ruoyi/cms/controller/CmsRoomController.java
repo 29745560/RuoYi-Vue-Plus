@@ -87,9 +87,10 @@ public class CmsRoomController extends BaseController {
     @SaCheckPermission("cms:room:edit")
     @Log(title = "房间", businessType = BusinessType.UPDATE)
     @RepeatSubmit()
-    @PutMapping("/checkout/{id}")
-    public R<Void> checkout(@NotNull(message = "房间编号不能为空") @PathVariable Long id) {
-        return toAjax(roomService.checkout(id));
+    @PutMapping("/checkout/{id}/{payStatus}")
+    public R<Void> checkout(@NotNull(message = "房间编号不能为空") @PathVariable Long id,
+                            @NotNull(message = "支付状态不能为空") @PathVariable String payStatus) {
+        return toAjax(roomService.checkout(id, payStatus));
     }
 
     /**

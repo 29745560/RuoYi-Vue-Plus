@@ -22,7 +22,7 @@
       @opened="handleOpened"
       @closed="handleClosed"
       direction="rtl"
-      size="800px"
+      size="1000px"
     >
       <div class="app-container">
         <el-form
@@ -82,7 +82,12 @@
               <image-preview :src="scope.row.coverUrl" :width="50" :height="50"/>
             </template>
           </el-table-column>
-          <el-table-column label="物品类别" prop="categoryName" align="center"/>
+          <el-table-column label="物品分类" prop="categoryName" align="center"/>
+          <el-table-column label="物品类型" prop="type" align="center" width="100">
+            <template slot-scope="scope">
+              <option-tag :options="goodsType" :value="scope.row.type" effect="plain"/>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" class-name="small-padding fixed-width" align="center" width="80">
             <template slot-scope="scope">
               <el-button
@@ -110,7 +115,7 @@
 
 <script>
 import {listGoods} from '@/api/cms/goods'
-import {listCategory} from '@/api/cms/category'
+import {listGoodsCategory} from '@/api/cms/goodsCategory.js'
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -154,8 +159,11 @@ export default {
         pageSize: 10,
         name: null,
         categoryId: null,
+        type: null,
         status: null,
       },
+      // 字典
+      goodsType: this.CmsDic.goods.type,
     };
   },
   computed: {
@@ -184,7 +192,7 @@ export default {
     },
     /** 查询物品分类下拉树结构 */
     getTreeselect() {
-      listCategory().then(response => {
+      listGoodsCategory().then(response => {
         this.categoryOptions = [];
         const data = {id: 0, name: '顶级节点', children: []};
         data.children = this.handleTree(response.data, "id", "parentId");

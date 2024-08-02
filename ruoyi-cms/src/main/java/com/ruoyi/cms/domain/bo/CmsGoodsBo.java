@@ -27,12 +27,6 @@ public class CmsGoodsBo extends BaseEntity {
     private String id;
 
     /**
-     * NFC秘文
-     */
-    @NotBlank(message = "NFC秘文不能为空", groups = {AddGroup.class, EditGroup.class})
-    private String secret;
-
-    /**
      * 物品名称
      */
     @NotBlank(message = "物品名称不能为空", groups = {AddGroup.class, EditGroup.class})
@@ -55,9 +49,19 @@ public class CmsGoodsBo extends BaseEntity {
     private Long roomId;
 
     /**
+     * NFC秘文
+     */
+    private String secret;
+
+    /**
      * 物品分值
      */
     private BigDecimal score;
+
+    /**
+     * 物品类型（0普通 1环保）
+     */
+    private String type;
 
     /**
      * 物品状态（0换洗中 1使用中）

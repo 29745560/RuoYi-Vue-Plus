@@ -74,7 +74,6 @@
       <el-table-column label="序号" align="center" prop="noticeId" width="100" />
       <el-table-column
         label="公告标题"
-        align="center"
         prop="noticeTitle"
         :show-overflow-tooltip="true"
       />
@@ -94,7 +93,7 @@
           <span>{{ parseTime(scope.row.createTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="120" >
         <template slot-scope="scope">
           <el-button
             size="mini"

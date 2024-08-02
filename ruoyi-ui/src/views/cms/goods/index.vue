@@ -16,7 +16,17 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="选择分类" prop="categoryId">
+      <el-form-item label="物品类型" prop="type">
+        <el-select v-model="queryParams.type" placeholder="请选择" clearable>
+          <el-option
+            v-for="room in goodsType.formatter"
+            :key="room.value"
+            :value="room.value"
+            :label="room.label"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="所属分类" prop="categoryId">
         <treeselect
           style="width: 200px"
           v-model="queryParams.categoryId"
@@ -26,7 +36,7 @@
           placeholder="请选择"
         />
       </el-form-item>
-      <el-form-item label="选择房间" prop="roomId">
+      <el-form-item label="所在客房" prop="roomId">
         <el-select v-model="queryParams.roomId" placeholder="请选择" clearable>
           <el-option
             v-for="room in roomList"
@@ -136,9 +146,14 @@
           <image-preview :src="scope.row.coverUrl" :width="50" :height="50"/>
         </template>
       </el-table-column>
-      <el-table-column label="物品类别" prop="categoryName" align="center"/>
-      <el-table-column label="房间名称" prop="roomName" align="center" show-overflow-tooltip/>
-      <el-table-column label="物品分值" prop="score" align="center"/>
+      <el-table-column label="物品分类" prop="categoryName" align="center"/>
+      <el-table-column label="所在客房" prop="roomName" align="center" show-overflow-tooltip/>
+      <el-table-column label="物品类型" prop="type" align="center" width="100">
+        <template slot-scope="scope">
+          <option-tag :options="goodsType" :value="scope.row.type" effect="plain"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="环保分值" prop="score" align="center" width="120"/>
       <el-table-column label="物品状态" prop="status" align="center" width="100">
         <template slot-scope="scope">
           <option-tag :options="goodsStatus" :value="scope.row.status"/>
@@ -188,21 +203,10 @@
         <el-form-item label="物品编号" prop="id">
           <el-input v-model="form.id" :disabled="form.isUpdate" placeholder="请填写" maxlength="50" clearable/>
         </el-form-item>
-        <el-form-item label="NFC秘文" prop="secret">
-          <el-input
-            v-model="form.secret"
-            :disabled="form.isUpdate"
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4 }"
-            placeholder="请填写"
-            maxlength="200"
-            show-word-limit
-          />
-        </el-form-item>
         <el-form-item label="物品名称" prop="name">
           <el-input v-model="form.name" placeholder="请填写" maxlength="50" clearable/>
         </el-form-item>
-        <el-form-item label="物品类别" prop="categoryId">
+        <el-form-item label="物品分类" prop="categoryId">
           <treeselect
             v-model="form.categoryId"
             :options="categoryOptions"
@@ -214,7 +218,7 @@
         <el-form-item label="物品图片" prop="cover">
           <image-upload v-model="form.cover"/>
         </el-form-item>
-        <el-form-item label="选择房间" prop="roomId">
+        <el-form-item label="所在客房" prop="roomId">
           <el-select v-model="form.roomId" placeholder="请选择" clearable>
             <el-option
               v-for="room in roomList"
@@ -225,9 +229,32 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="物品分值" prop="score">
-          <el-input-number v-model="form.score" :min="1" :max="100" :step-strictly="true" :step="1"/>
+        <el-form-item label="物品类型" prop="type">
+          <el-radio-group v-model="form.type">
+            <el-radio
+              v-for="dict in goodsType.formatter"
+              :key="dict.value"
+              :label="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
+        <template v-if="form.type === '1'">
+          <el-form-item label="NFC秘文" prop="secret">
+            <el-input
+              v-model="form.secret"
+              :disabled="form.isUpdate"
+              type="textarea"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              placeholder="请填写"
+              maxlength="200"
+              show-word-limit
+            />
+          </el-form-item>
+          <el-form-item label="物品分值" prop="score">
+            <el-input-number v-model="form.score" :min="0" :max="100" :step-strictly="true" :step="1"/>
+          </el-form-item>
+        </template>
         <el-form-item label="物品状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
@@ -264,9 +291,9 @@ import {
   addGoods,
   updateGoods,
   delGoods,
-} from "@/api/cms/goods";
-import {listRoom} from "@/api/cms/room";
-import {listCategory} from '@/api/cms/category'
+} from "@/api/cms/goods.js";
+import {listGoodsCategory} from '@/api/cms/goodsCategory.js'
+import {listRoom} from "@/api/cms/room.js";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
@@ -293,7 +320,7 @@ export default {
       total: 0,
       // 物品表格数据
       goodsList: [],
-      // 房间表格数据
+      // 客房表格数据
       roomList: [],
       // 物品分类树选项
       categoryOptions: [],
@@ -309,6 +336,7 @@ export default {
         name: null,
         roomId: null,
         categoryId: null,
+        type: null,
         status: null,
       },
       // 表单参数
@@ -318,17 +346,18 @@ export default {
         id: [
           {required: true, message: "物品编号不能为空", trigger: "blur"},
         ],
-        secret: [
-          {required: true, message: "NFC秘文不能为空", trigger: "blur"},
-        ],
         name: [
           {required: true, message: "物品名称不能为空", trigger: "blur"},
         ],
         categoryId: [
           {required: true, message: "物品分类不能为空", trigger: "blur"},
         ],
+        secret: [
+          {required: true, message: "NFC秘文不能为空", trigger: "blur"},
+        ],
       },
       // 字典
+      goodsType: this.CmsDic.goods.type,
       goodsStatus: this.CmsDic.goods.status,
     };
   },
@@ -358,7 +387,7 @@ export default {
     },
     /** 查询物品分类下拉树结构 */
     getTreeselect() {
-      listCategory().then(response => {
+      listGoodsCategory().then(response => {
         this.categoryOptions = [];
         const data = {id: 0, name: '顶级节点', children: []};
         data.children = this.handleTree(response.data, "id", "parentId");
@@ -391,7 +420,8 @@ export default {
         cover: null,
         roomId: null,
         categoryId: null,
-        score: "1",
+        score: 0,
+        type: "0",
         status: "0",
         remark: null,
       };
@@ -470,7 +500,6 @@ export default {
         this.getList();
         this.$modal.msgSuccess("删除成功");
       }).catch(() => {
-      }).finally(() => {
         this.loading = false;
       });
     },

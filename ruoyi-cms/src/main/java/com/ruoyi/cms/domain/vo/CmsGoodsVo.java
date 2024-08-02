@@ -80,6 +80,13 @@ public class CmsGoodsVo {
     private BigDecimal score;
 
     /**
+     * 物品类型（0普通 1环保）
+     */
+    @ExcelProperty(value = "物品类型", converter = ExcelDictConvert.class)
+    @ExcelDictFormat(readConverterExp = "0=普通,1=环保")
+    private String type;
+
+    /**
      * 物品状态（0换洗中 1使用中）
      */
     @ExcelProperty(value = "物品状态", converter = ExcelDictConvert.class)

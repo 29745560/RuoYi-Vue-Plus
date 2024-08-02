@@ -44,9 +44,9 @@ export function delRoom(id) {
 }
 
 // 旅客退房
-export function checkoutRoom(id) {
+export function checkoutRoom(id, payStatus) {
   return request({
-    url: '/cms/room/checkout/' + id,
+    url: `/cms/room/checkout/${id}/${payStatus}`,
     method: 'put',
   })
 }

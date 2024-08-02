@@ -29,8 +29,13 @@
       <el-table-column type="selection" width="45" align="center"/>
       <el-table-column label="物品编号" prop="id" align="center" show-overflow-tooltip/>
       <el-table-column label="物品名称" prop="name" align="center" show-overflow-tooltip/>
-      <el-table-column label="物品类别" prop="categoryName" align="center"/>
-      <el-table-column label="物品状态" prop="status" align="center" width="100">
+      <el-table-column label="物品分类" prop="categoryName" align="center"/>
+      <el-table-column label="物品类型" prop="type" align="center" width="120">
+        <template slot-scope="scope">
+          <option-tag :options="goodsType" :value="scope.row.type" effect="plain"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="物品状态" prop="status" align="center" width="120">
         <template slot-scope="scope">
           <option-tag :options="goodsStatus" :value="scope.row.status"/>
         </template>
@@ -94,6 +99,7 @@ export default {
         roomId: null,
       },
       // 字典
+      goodsType: this.CmsDic.goods.type,
       goodsStatus: this.CmsDic.goods.status,
     };
   },
@@ -131,7 +137,6 @@ export default {
         this.getList();
         this.$modal.msgSuccess("分配物品成功");
       }).catch(() => {
-      }).finally(() => {
         this.loading = false;
       });
     },
@@ -139,7 +144,7 @@ export default {
     handleRemoved(row) {
       const ids = row.id || this.ids;
       const roomId = this.queryParams.roomId;
-      this.$modal.confirm('是否确认解除物品编号为"' + ids + '"的数据项？').then(() => {
+      this.$modal.confirm('是否确认解除编号为"' + ids + '"的物品？').then(() => {
         this.loading = true;
         return delRoomGoods(roomId, ids);
       }).then(() => {
@@ -147,7 +152,6 @@ export default {
         this.getList();
         this.$modal.msgSuccess("解除物品成功");
       }).catch(() => {
-      }).finally(() => {
         this.loading = false;
       });
     },

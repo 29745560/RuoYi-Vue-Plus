@@ -72,10 +72,11 @@ public class CmsRoomRecordController extends BaseController {
             CmsRoom room = list.get(i).getRoom();
             CmsGuest guest = list.get(i).getGuest();
             CmsRoomRecordExportVo vo = listVo.get(i);
-            if (ObjectUtil.isNotEmpty(room)) {
+            if (ObjectUtil.isNotNull(room)) {
                 vo.setRoomName(room.getName());
                 vo.setRealname(StringUtils.blankToDefault(guest.getRealname(), "未填写"));
-                vo.setPhone(StringUtils.blankToDefault(guest.getPhone(), "未填写"));
+                vo.setContact(StringUtils.blankToDefault(guest.getContact(), "未填写"));
+                vo.setSex(StringUtils.blankToDefault(guest.getSex(), "未知"));
             }
         }
         ExcelUtil.exportExcel(listVo, "房间入住记录", CmsRoomRecordExportVo.class, response);

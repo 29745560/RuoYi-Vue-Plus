@@ -31,12 +31,17 @@ public class CmsGuest extends BaseEntity {
     private String realname;
 
     /**
-     * 手机号码
+     * 联系方式
      */
-    private String phone;
+    private String contact;
 
     /**
-     * 用户状态（0正常 1停用）
+     * 宾客性别（0男 1女 2未知）
+     */
+    private String sex;
+
+    /**
+     * 宾客状态（0正常 1停用）
      */
     private String status;
 

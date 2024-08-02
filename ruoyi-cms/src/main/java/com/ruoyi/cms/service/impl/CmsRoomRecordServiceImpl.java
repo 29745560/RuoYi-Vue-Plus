@@ -2,16 +2,19 @@ package com.ruoyi.cms.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.common.core.domain.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.helper.LoginHelper;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.cms.domain.bo.CmsRoomRecordBo;
 import com.ruoyi.cms.domain.vo.CmsGoodsVo;
@@ -19,13 +22,16 @@ import com.ruoyi.cms.domain.CmsGoods;
 import com.ruoyi.cms.domain.CmsGoodsRecord;
 import com.ruoyi.cms.domain.CmsGuest;
 import com.ruoyi.cms.domain.CmsRoom;
+import com.ruoyi.cms.domain.CmsRoomCategory;
 import com.ruoyi.cms.domain.CmsRoomRecord;
 import com.ruoyi.cms.mapper.CmsGoodsMapper;
 import com.ruoyi.cms.mapper.CmsGoodsRecordMapper;
 import com.ruoyi.cms.mapper.CmsGuestMapper;
 import com.ruoyi.cms.mapper.CmsRoomMapper;
+import com.ruoyi.cms.mapper.CmsRoomCategoryMapper;
 import com.ruoyi.cms.mapper.CmsRoomRecordMapper;
 import com.ruoyi.cms.service.ICmsRoomRecordService;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -48,6 +54,7 @@ public class CmsRoomRecordServiceImpl implements ICmsRoomRecordService {
     private final CmsGoodsMapper goodsMapper;
     private final CmsGuestMapper guestMapper;
     private final CmsRoomRecordMapper roomRecordMapper;
+    private final CmsRoomCategoryMapper roomCategoryMapper;
     private final CmsGoodsRecordMapper goodsRecordMapper;
 
     /**
@@ -70,8 +77,9 @@ public class CmsRoomRecordServiceImpl implements ICmsRoomRecordService {
     private Wrapper<CmsRoomRecord> buildQueryWrapper(CmsRoomRecordBo bo) {
         Map<String, Object> params = bo.getParams();
         QueryWrapper<CmsRoomRecord> wrapper = Wrappers.query();
-        wrapper.eq(StringUtils.isNotBlank(bo.getCardId()), "r.card_id", bo.getCardId());
         wrapper.eq(ObjectUtil.isNotNull(bo.getRoomId()), "r.room_id", bo.getRoomId());
+        wrapper.eq(StringUtils.isNotBlank(bo.getCardId()), "r.card_id", bo.getCardId());
+        wrapper.eq(StringUtils.isNotBlank(bo.getPay()), "r.pay", bo.getPay());
         if (ObjectUtil.isNotNull(params.get("beginDate")) && ObjectUtil.isNotNull(params.get("endDate"))) {
             wrapper.ge("r.check_in_date", params.get("beginDate"));
             wrapper.le("r.check_out_date", params.get("endDate"));
@@ -98,22 +106,47 @@ public class CmsRoomRecordServiceImpl implements ICmsRoomRecordService {
             throw new ServiceException("入住日期必须是今日开始");
         }
         if (DateUtil.compare(DateUtil.beginOfDay(bo.getCheckInDate()), DateUtil.beginOfDay(bo.getCheckOutDate())) >= 0 ||
-            DateUtil.between(DateUtil.beginOfDay(bo.getCheckInDate()), DateUtil.beginOfDay(bo.getCheckOutDate()), DateUnit.DAY) < 1) {
+            DateUtil.betweenDay(DateUtil.beginOfDay(bo.getCheckInDate()), DateUtil.beginOfDay(bo.getCheckOutDate()), true) < 1) {
             throw new ServiceException("离店日期必须在入住日期之后");
         }
         CmsRoomRecord addRecord = BeanUtil.toBean(bo, CmsRoomRecord.class);
+
+        Long roomId = bo.getRoomId();
+
+        // 查询房间信息
+        BigDecimal roomUnitPrice = BigDecimal.ZERO;
+        BigDecimal roomTotalAmount = BigDecimal.ZERO;
+        CmsRoom currRoom = roomMapper.selectById(roomId);
+        if (ObjectUtil.isNull(currRoom)) {
+            throw new ServiceException("房间信息不存在, 请重试");
+        } else if (ObjectUtil.isNull(currRoom.getCategoryId())) {
+            throw new ServiceException("房间信息错误, 请重试");
+        } else {
+            // 计算待支付金额
+            long days = DateUtil.betweenDay(bo.getCheckInDate(), bo.getCheckOutDate(), true);
+            CmsRoomCategory roomCategory = roomCategoryMapper.selectById(currRoom.getCategoryId());
+            roomUnitPrice = roomCategory.getPrice();
+            roomTotalAmount = roomUnitPrice.multiply(BigDecimal.valueOf(days));
+        }
+        addRecord.setUnitPrice(roomUnitPrice);
+        addRecord.setTotalAmount(roomTotalAmount);
+        addRecord.setPay("0");
+
         boolean flag = roomRecordMapper.insert(addRecord) > 0;
         if (flag) {
             Long roomRecordId = addRecord.getId();
             bo.setId(roomRecordId);
 
             // 修改房间信息
-            CmsRoom updateRoom = new CmsRoom();
-            updateRoom.setId(bo.getRoomId());
-            updateRoom.setRoomRecordId(roomRecordId);
-            updateRoom.setStatus("2");
-            int rows = roomMapper.updateById(updateRoom);
-            if (rows < 1) {
+            int updateRoomRows = roomMapper.update(null,
+                new LambdaUpdateWrapper<CmsRoom>()
+                    .set(CmsRoom::getRoomRecordId, roomRecordId)
+                    .set(CmsRoom::getStatus, "2")
+                    .set(CmsRoom::getUpdateBy, LoginHelper.getUsername())
+                    .set(CmsRoom::getUpdateTime, DateUtils.getNowDate())
+                    .eq(CmsRoom::getId, roomId)
+            );
+            if (updateRoomRows < 1) {
                 throw new ServiceException("房间信息修改失败, 请重试");
             }
 
@@ -121,20 +154,17 @@ public class CmsRoomRecordServiceImpl implements ICmsRoomRecordService {
             CmsGuest addGuest = new CmsGuest();
             addGuest.setCardId(bo.getCardId());
             addGuest.setRealname(bo.getRealname());
-            addGuest.setPhone(bo.getPhone());
+            addGuest.setContact(bo.getContact());
+            addGuest.setSex(bo.getSex());
             addGuest.setStatus("0");
             addGuest.setRemark("入住操作");
-            boolean gr = guestMapper.insertOrUpdate(addGuest);
-            if (!gr) {
+            boolean gReset = guestMapper.insertOrUpdate(addGuest);
+            if (!gReset) {
                 throw new ServiceException("旅客信息插入操作失败, 请重试");
             }
 
             // 获取该房间内所有物品
-            List<CmsGoodsVo> goodsList = goodsMapper.selectVoList(
-                Wrappers.lambdaQuery(CmsGoods.class)
-                    .eq(CmsGoods::getRoomId, bo.getRoomId())
-                    .eq(CmsGoods::getStatus, "0")
-            );
+            List<CmsGoodsVo> goodsList = goodsMapper.selectVoList(new LambdaQueryWrapper<CmsGoods>().eq(CmsGoods::getRoomId, roomId).eq(CmsGoods::getStatus, "0"));
             if (CollUtil.isEmpty(goodsList)) {
                 throw new ServiceException("该房间内暂无物品, 请添加后再重试");
             }
@@ -142,7 +172,7 @@ public class CmsRoomRecordServiceImpl implements ICmsRoomRecordService {
             List<String> goodsIds = new ArrayList<String>();
             for (CmsGoodsVo goods : goodsList) {
                 CmsGoodsRecord record = new CmsGoodsRecord();
-                record.setRoomId(bo.getRoomId());
+                record.setRoomId(roomId);
                 record.setRoomRecordId(roomRecordId);
                 record.setGoodsId(goods.getId());
                 record.setStartDate(DateUtil.beginOfDay(bo.getCheckInDate()));
@@ -157,8 +187,10 @@ public class CmsRoomRecordServiceImpl implements ICmsRoomRecordService {
             }
             // 将房间内的物品都置为(使用中)状态
             int updateGoodsRows = goodsMapper.update(null,
-                Wrappers.lambdaUpdate(CmsGoods.class)
+                new LambdaUpdateWrapper<CmsGoods>()
                     .set(CmsGoods::getStatus, "1")
+                    .set(CmsGoods::getUpdateBy, LoginHelper.getUsername())
+                    .set(CmsGoods::getUpdateTime, DateUtils.getNowDate())
                     .in(CmsGoods::getId, goodsIds)
             );
             if (updateGoodsRows < 1) {
@@ -174,25 +206,29 @@ public class CmsRoomRecordServiceImpl implements ICmsRoomRecordService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public Boolean updateRoomRecord(CmsRoomRecordBo bo) {
-        CmsRoomRecord updateRecord = BeanUtil.toBean(bo, CmsRoomRecord.class);
         int recordRows = roomRecordMapper.update(null,
-            Wrappers.lambdaUpdate(CmsRoomRecord.class)
-                .set(StringUtils.isNotBlank(updateRecord.getRemark()), CmsRoomRecord::getRemark, updateRecord.getRemark())
-                .eq(CmsRoomRecord::getId, updateRecord.getId())
+            new LambdaUpdateWrapper<CmsRoomRecord>()
+                .set(StringUtils.isNotBlank(bo.getRemark()), CmsRoomRecord::getRemark, bo.getRemark())
+                .set(CmsRoomRecord::getUpdateBy, LoginHelper.getUsername())
+                .set(CmsRoomRecord::getUpdateTime, DateUtils.getNowDate())
+                .eq(CmsRoomRecord::getId, bo.getId())
         );
         if (recordRows > 0) {
             // 若修改旅客信息
-            CmsGuest updateGuest = new CmsGuest();
-            updateGuest.setCardId(bo.getCardId());
-            updateGuest.setRealname(bo.getRealname());
-            updateGuest.setPhone(bo.getPhone());
-            int guestRows = guestMapper.updateById(updateGuest);
-            if (guestRows < 1) {
-                throw new ServiceException("旅客信息更新操作失败,请重试");
-            }
+            int guestRows = guestMapper.update(null,
+                new LambdaUpdateWrapper<CmsGuest>()
+                    .set(StringUtils.isNotBlank(bo.getRealname()), CmsGuest::getRealname, bo.getRealname())
+                    .set(StringUtils.isNotBlank(bo.getContact()), CmsGuest::getContact, bo.getContact())
+                    .set(StringUtils.isNotBlank(bo.getSex()), CmsGuest::getSex, bo.getSex())
+                    .set(CmsGuest::getUpdateBy, LoginHelper.getUsername())
+                    .set(CmsGuest::getUpdateTime, DateUtils.getNowDate())
+                    .eq(CmsGuest::getCardId, bo.getCardId())
+            );
+            if (guestRows < 1) throw new ServiceException("旅客信息更新操作失败,请重试");
             return true;
+        } else {
+            return false;
         }
-        return false;
     }
 
     /**

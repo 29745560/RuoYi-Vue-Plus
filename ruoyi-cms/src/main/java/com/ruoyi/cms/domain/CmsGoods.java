@@ -58,6 +58,11 @@ public class CmsGoods extends BaseEntity {
     private BigDecimal score;
 
     /**
+     * 物品类型（0普通 1环保）
+     */
+    private String type;
+
+    /**
      * 物品状态（0换洗中 1使用中）
      */
     private String status;

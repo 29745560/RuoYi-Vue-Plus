@@ -29,17 +29,22 @@ public class CmsGuestBo extends BaseEntity {
     /**
      * 真实姓名
      */
-    @Size(min = 0, max = 50, message = "真实姓名长度不能超过50个字符")
+    @Size(min = 0, max = 30, message = "真实姓名长度不能超过30个字符")
     private String realname;
 
     /**
-     * 手机号码
+     * 联系方式
      */
-    @Size(min = 0, max = 50, message = "手机号码长度不能超过50个字符")
-    private String phone;
+    @Size(min = 0, max = 50, message = "联系方式长度不能超过50个字符")
+    private String contact;
 
     /**
-     * 用户状态（0正常 1停用）
+     * 宾客性别（0男 1女 2未知）
+     */
+    private String sex;
+
+    /**
+     * 宾客状态（0正常 1停用）
      */
     private String status;
 

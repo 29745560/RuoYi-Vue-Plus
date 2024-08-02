@@ -10,16 +10,19 @@
           size="medium"
           border
         >
-          <el-descriptions-item label="房间编号" :span="3">
+          <el-descriptions-item label="客房编号" :span="3">
             {{ data.id }}
           </el-descriptions-item>
-          <el-descriptions-item label="房间名称" :span="3">
+          <el-descriptions-item label="客房名称" :span="3">
             {{ data.name }}
           </el-descriptions-item>
-          <el-descriptions-item label="入住编号" :span="3">
-            {{ data.roomRecordId || '暂无旅客入住' }}
+          <el-descriptions-item label="客房类型" :span="3">
+            {{ data.category.name }} | {{ data.category.beds }}床
           </el-descriptions-item>
-          <el-descriptions-item label="房间状态" :span="3">
+          <el-descriptions-item label="客房价格" :span="3">
+            ￥{{ data.category.price }} / 晚
+          </el-descriptions-item>
+          <el-descriptions-item label="客房状态" :span="3">
             <option-tag :options="roomStatus" :value="data.status"/>
           </el-descriptions-item>
         </el-descriptions>
@@ -30,6 +33,7 @@
 
 <script>
 import {getRoom} from '@/api/cms/room.js'
+import {getRoomCategory} from '@/api/cms/roomCategory.js'
 
 export default {
   name: "CmsRoomNavPreview",
@@ -41,7 +45,7 @@ export default {
     },
     title: {
       type: String,
-      default: '房间信息',
+      default: '客房信息',
       required: false,
     },
   },
@@ -61,9 +65,14 @@ export default {
       loading: true,
       data: {
         id: null,
-        roomRecordId: null,
+        categoryId: null,
         name: null,
         status: "0",
+        category: {
+          name: null,
+          price: 0,
+          beds: 0,
+        },
       },
       roomStatus: this.CmsDic.room.status,
     };
@@ -77,7 +86,17 @@ export default {
     getData() {
       this.loading = true;
       getRoom(this.id).then(response => {
-        this.data = response.data;
+        const resData = response.data;
+        this.data.id = resData.id;
+        this.data.categoryId = resData.categoryId;
+        this.data.name = resData.name;
+        this.data.status = resData.status;
+        return getRoomCategory(resData.categoryId);
+      }).then(response => {
+        const resData = response.data;
+        this.data.category.name = resData.name;
+        this.data.category.price = resData.price;
+        this.data.category.beds = resData.beds;
         this.loading = false;
       });
     },

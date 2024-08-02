@@ -1,7 +1,7 @@
 # 项目相关配置
 ruoyi:
   # 名称
-  name: RuoYi-Vue-Plus
+  name: Hotel-Plus
   # 版本
   version: ${ruoyi-vue-plus.version}
   # 版权年份
@@ -23,7 +23,7 @@ captcha:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
-  port: 8081
+  port: 8090
   servlet:
     # 应用的访问路径
     context-path: /

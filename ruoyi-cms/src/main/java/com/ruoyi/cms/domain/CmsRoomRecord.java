@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ruoyi.common.core.domain.BaseEntity;
+import java.math.BigDecimal;
 import java.util.Date;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -46,6 +47,21 @@ public class CmsRoomRecord extends BaseEntity {
      * 离店日期
      */
     private Date checkOutDate;
+
+    /**
+     * 房间单价
+     */
+    private BigDecimal unitPrice;
+
+    /**
+     * 消费金额
+     */
+    private BigDecimal totalAmount;
+
+    /**
+     * 支付状态（0未支付 1已支付）
+     */
+    private String pay;
 
     /**
      * 备注

@@ -10,15 +10,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 物品分类业务对象 biz_category
+ * 物品分类业务对象 biz_goods_category
  *
  * @author ruoyi
  * @date 2023-08-01
  */
-
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CmsCategoryBo extends TreeEntity<CmsCategoryBo> {
+public class CmsGoodsCategoryBo extends TreeEntity<CmsGoodsCategoryBo> {
 
     /**
      * 分类编号

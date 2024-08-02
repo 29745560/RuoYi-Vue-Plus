@@ -1,7 +1,7 @@
 package com.ruoyi.cms.service;
 
-import com.ruoyi.cms.domain.vo.CmsCategoryVo;
-import com.ruoyi.cms.domain.bo.CmsCategoryBo;
+import com.ruoyi.cms.domain.vo.CmsGoodsCategoryVo;
+import com.ruoyi.cms.domain.bo.CmsGoodsCategoryBo;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,28 +12,28 @@ import java.util.List;
  * @author ruoyi
  * @date 2023-08-01
  */
-public interface ICmsCategoryService {
+public interface ICmsGoodsCategoryService {
 
     /**
      * 查询物品分类
      */
-    CmsCategoryVo queryById(Long id);
+    CmsGoodsCategoryVo queryById(Long id);
 
 
     /**
      * 查询物品分类列表
      */
-    List<CmsCategoryVo> queryList(CmsCategoryBo bo);
+    List<CmsGoodsCategoryVo> queryList(CmsGoodsCategoryBo bo);
 
     /**
      * 新增物品分类
      */
-    Boolean insertByBo(CmsCategoryBo bo);
+    Boolean insertByBo(CmsGoodsCategoryBo bo);
 
     /**
      * 修改物品分类
      */
-    Boolean updateByBo(CmsCategoryBo bo);
+    Boolean updateByBo(CmsGoodsCategoryBo bo);
 
     /**
      * 校验并批量删除物品分类信息

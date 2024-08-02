@@ -7,15 +7,15 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 物品分类对象 biz_category
+ * 物品分类对象 biz_goods_category
  *
  * @author ruoyi
  * @date 2023-08-01
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("biz_category")
-public class CmsCategory extends TreeEntity<CmsCategory> {
+@TableName("biz_goods_category")
+public class CmsGoodsCategory extends TreeEntity<CmsGoodsCategory> {
 
     private static final long serialVersionUID = 1L;
 

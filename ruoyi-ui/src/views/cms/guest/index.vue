@@ -24,15 +24,25 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="手机号码" prop="phone">
+      <el-form-item label="联系方式" prop="contact">
         <el-input
-          v-model="queryParams.phone"
+          v-model="queryParams.contact"
           placeholder="请填写"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="旅客状态" prop="status">
+      <el-form-item label="宾客性别" prop="sex">
+        <el-select v-model="queryParams.sex" placeholder="请选择" clearable>
+          <el-option
+            v-for="dict in guestSex.formatter"
+            :key="dict.value"
+            :value="dict.value"
+            :label="dict.label"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="宾客状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择" clearable>
           <el-option
             v-for="dict in guestStatus.formatter"
@@ -90,8 +100,13 @@
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="身份证号" prop="cardId" align="center"/>
       <el-table-column label="真实姓名" prop="realname" align="center"/>
-      <el-table-column label="手机号码" prop="phone" align="center"/>
-      <el-table-column label="旅客状态" prop="status" align="center" width="100">
+      <el-table-column label="宾客性别" prop="sex" align="center" width="100">
+        <template slot-scope="scope">
+          <option-tag :options="guestSex" :value="scope.row.sex" effect="plain"/>
+        </template>
+      </el-table-column>
+      <el-table-column label="联系方式" prop="contact" align="center"/>
+      <el-table-column label="宾客状态" prop="status" align="center" width="100">
         <template slot-scope="scope">
           <option-tag :options="guestStatus" :value="scope.row.status"/>
         </template>
@@ -119,7 +134,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改酒店旅客对话框 -->
+    <!-- 添加或修改酒店宾客对话框 -->
     <el-dialog
       :title="title"
       :visible.sync="open"
@@ -136,10 +151,20 @@
         <el-form-item label="真实姓名" prop="realname">
           <el-input v-model="form.realname" placeholder="请填写" maxlength="50" clearable/>
         </el-form-item>
-        <el-form-item label="手机号码" prop="phone">
-          <el-input v-model="form.phone" placeholder="请填写" maxlength="50" clearable/>
+        <el-form-item label="联系方式" prop="contact">
+          <el-input v-model="form.contact" placeholder="请填写" maxlength="50" clearable/>
         </el-form-item>
-        <el-form-item label="旅客状态" prop="status">
+        <el-form-item label="宾客性别" prop="sex">
+          <el-radio-group v-model="form.sex">
+            <el-radio
+              v-for="dict in guestSex.formatter"
+              :key="dict.value"
+              :label="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="宾客状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
               v-for="dict in guestStatus.formatter"
@@ -194,7 +219,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 酒店旅客表格数据
+      // 酒店宾客表格数据
       guestList: [],
       // 弹出层标题
       title: "",
@@ -206,7 +231,8 @@ export default {
         pageSize: 10,
         cardId: null,
         realname: null,
-        phone: null,
+        contact: null,
+        sex: null,
         status: null,
       },
       // 表单参数
@@ -219,13 +245,14 @@ export default {
       },
       // 字典
       guestStatus: this.CmsDic.guest.status,
+      guestSex: this.CmsDic.guest.sex,
     };
   },
   created() {
     this.getList();
   },
   methods: {
-    /** 查询酒店旅客列表 */
+    /** 查询酒店宾客列表 */
     getList() {
       this.loading = true;
       listGuest(this.queryParams).then(response => {
@@ -245,7 +272,8 @@ export default {
         isUpdate: false,
         cardId: null,
         realname: null,
-        phone: null,
+        contact: null,
+        sex: "0",
         status: "0",
         remark: null,
       };
@@ -271,7 +299,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加酒店旅客";
+      this.title = "添加酒店宾客";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -283,7 +311,7 @@ export default {
         this.form = response.data;
         this.form.isUpdate = true;
         this.open = true;
-        this.title = "修改酒店旅客";
+        this.title = "修改酒店宾客";
       });
     },
     /** 提交按钮 */

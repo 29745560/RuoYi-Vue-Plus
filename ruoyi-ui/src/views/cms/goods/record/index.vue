@@ -8,7 +8,7 @@
       v-show="showSearch"
       label-width="68px"
     >
-      <el-form-item label="当前房间" prop="roomId">
+      <el-form-item label="当前客房" prop="roomId">
         <el-select v-model="queryParams.roomId" placeholder="请选择" clearable>
           <el-option
             v-for="room in roomList"
@@ -63,7 +63,7 @@
     <el-table v-loading="loading" :data="recordList">
       <el-table-column label="#" type="index" align="center" width="60"/>
       <el-table-column label="入住编号" prop="roomRecordId" align="center" show-overflow-tooltip/>
-      <el-table-column label="入住房间" prop="roomName" align="center" show-overflow-tooltip/>
+      <el-table-column label="入住客房" prop="roomName" align="center" show-overflow-tooltip/>
       <el-table-column label="物品名称" prop="goodsName" align="center" show-overflow-tooltip/>
       <el-table-column label="换洗状态" prop="status" align="center" width="100">
         <template slot-scope="scope">
@@ -107,9 +107,9 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 房间换洗记录表格数据
+      // 客房换洗记录表格数据
       recordList: [],
-      // 房间表格数据
+      // 客房表格数据
       roomList: [],
       // 日期范围
       queryDateRange: [],
@@ -130,7 +130,7 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询房间换洗记录列表 */
+    /** 查询客房换洗记录列表 */
     getList() {
       this.loading = true;
       listRoom({}).then(response => {

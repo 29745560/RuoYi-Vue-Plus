@@ -1,10 +1,4 @@
 export const CmsOptions = {
-  category: {
-    status: {
-      filter: {'0': 'success', '1': 'danger'},
-      formatter: [{value: '0', label: '正常'}, {value: '1', label: '停用'}],
-    },
-  },
   room: {
     status: {
       filter: {
@@ -20,11 +14,27 @@ export const CmsOptions = {
         {value: '9', label: '已关闭'},
       ],
     },
+    records: {
+      pay: {
+        filter: {'0': 'info', '1': 'success'},
+        formatter: [
+          {value: '0', label: '待支付'},
+          {value: '1', label: '已支付'},
+        ],
+      },
+    },
   },
   guest: {
     status: {
       filter: {'0': 'success', '1': 'danger'},
       formatter: [{value: '0', label: '正常'}, {value: '1', label: '停用'}],
+    },
+    sex: {
+      filter: {'0': '', '1': 'danger', '2': 'info'},
+      formatter: [
+        {value: '0', label: '男'},
+        {value: '1', label: '女'},
+        {value: '2', label: '未知'}],
     },
     score: {
       status: {
@@ -41,6 +51,13 @@ export const CmsOptions = {
         {value: '1', label: '使用中'},
       ],
     },
+    type: {
+      filter: {'0': '', '1': 'success'},
+      formatter: [
+        {value: '0', label: '普通'},
+        {value: '1', label: '环保'},
+      ],
+    },
     records: {
       status: {
         filter: {'0': 'success', '1': 'warning'},
@@ -48,6 +65,12 @@ export const CmsOptions = {
           {value: '0', label: '期初'},
           {value: '1', label: '换洗'},
         ],
+      },
+    },
+    category: {
+      status: {
+        filter: {'0': 'success', '1': 'danger'},
+        formatter: [{value: '0', label: '正常'}, {value: '1', label: '停用'}],
       },
     },
   },

@@ -1,40 +1,40 @@
 package com.ruoyi.cms.domain.vo;
 
-import java.util.Date;
 import lombok.Data;
+import java.util.Date;
 
 /**
- * 房间视图对象 biz_room
+ * 物品分类视图对象 biz_goods_category
  *
  * @author ruoyi
  * @date 2023-08-01
  */
 @Data
-public class CmsRoomVo {
+public class CmsGoodsCategoryVo {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 房间编号
+     * 分类编号
      */
     private Long id;
 
     /**
-     * 房间类型编号
+     * 分类父编号
      */
-    private Long categoryId;
+    private Long parentId;
 
     /**
-     * 房间名称
+     * 分类排序
+     */
+    private Long sort;
+
+    /**
+     * 分类名称
      */
     private String name;
 
     /**
-     * 入住编号
-     */
-    private Long roomRecordId;
-
-    /**
-     * 房间状态（0空闲中 1整理中 2入住中 9已关闭）
+     * 分类状态（0正常 1关闭）
      */
     private String status;
 

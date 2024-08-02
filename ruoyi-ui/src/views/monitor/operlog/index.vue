@@ -113,14 +113,14 @@
 
     <el-table ref="tables" v-loading="loading" :data="list" @selection-change="handleSelectionChange" :default-sort="defaultSort" @sort-change="handleSortChange">
       <el-table-column type="selection" width="55" align="center" />
-      <el-table-column label="日志编号" align="center" prop="operId" />
+      <el-table-column label="日志编号" align="center" prop="operId" :show-overflow-tooltip="true" />
       <el-table-column label="系统模块" align="center" prop="title" />
-      <el-table-column label="操作类型" align="center" prop="businessType">
+      <el-table-column label="操作类型" align="center" prop="businessType" width="100">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_oper_type" :value="scope.row.businessType"/>
         </template>
       </el-table-column>
-      <el-table-column label="请求方式" align="center" prop="requestMethod" />
+      <el-table-column label="请求方式" align="center" prop="requestMethod" width="100" />
       <el-table-column label="操作人员" align="center" prop="operName" width="100" :show-overflow-tooltip="true" sortable="custom" :sort-orders="['descending', 'ascending']" />
       <el-table-column label="部门" align="center" prop="deptName" width="130" :show-overflow-tooltip="true" />
       <el-table-column label="操作地址" align="center" prop="operIp" width="130" :show-overflow-tooltip="true" />
@@ -135,7 +135,7 @@
           <span>{{ parseTime(scope.row.operTime) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+      <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="100">
         <template slot-scope="scope">
           <el-button
             size="mini"

@@ -38,6 +38,12 @@ public class CmsRoomBo extends BaseEntity {
     private Long roomRecordId;
 
     /**
+     * 类型编号
+     */
+    @NotNull(message = "房间类型编号不能为空", groups = {AddGroup.class, EditGroup.class})
+    private Long categoryId;
+
+    /**
      * 房间状态（0空闲中 1整理中 2入住中 9已关闭）
      */
     private String status;

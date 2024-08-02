@@ -5,19 +5,22 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.ruoyi.common.core.domain.PageQuery;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.helper.LoginHelper;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.cms.domain.bo.CmsGoodsBo;
 import com.ruoyi.cms.domain.vo.CmsGoodsVo;
-import com.ruoyi.cms.domain.CmsCategory;
+import com.ruoyi.cms.domain.CmsGoodsCategory;
 import com.ruoyi.cms.domain.CmsGoods;
 import com.ruoyi.cms.domain.CmsGoodsRecord;
 import com.ruoyi.cms.domain.CmsRoom;
-import com.ruoyi.cms.mapper.CmsCategoryMapper;
+import com.ruoyi.cms.mapper.CmsGoodsCategoryMapper;
 import com.ruoyi.cms.mapper.CmsGoodsMapper;
 import com.ruoyi.cms.mapper.CmsGoodsRecordMapper;
 import com.ruoyi.cms.mapper.CmsRoomMapper;
@@ -42,7 +45,7 @@ public class CmsGoodsServiceImpl implements ICmsGoodsService {
 
     private final CmsGoodsMapper goodsMapper;
     private final CmsGoodsRecordMapper goodsRecordMapper;
-    private final CmsCategoryMapper categoryMapper;
+    private final CmsGoodsCategoryMapper goodsCategoryMapper;
     private final CmsRoomMapper roomMapper;
 
     /**
@@ -68,7 +71,7 @@ public class CmsGoodsServiceImpl implements ICmsGoodsService {
     private List<CmsGoodsVo> transferIdsToNames(List<CmsGoodsVo> list) {
         if (CollUtil.isNotEmpty(list)) {
             List<CmsRoom> roomList = roomMapper.selectList();
-            List<CmsCategory> categoryList = categoryMapper.selectList();
+            List<CmsGoodsCategory> goodsCategoryList = goodsCategoryMapper.selectList();
             for (CmsGoodsVo goodsVo : list) {
                 Long _roomId = goodsVo.getRoomId();
                 Long _categoryId = goodsVo.getCategoryId();
@@ -77,8 +80,8 @@ public class CmsGoodsServiceImpl implements ICmsGoodsService {
                     if (ObjectUtil.isNotNull(room)) goodsVo.setRoomName(room.getName());
                 }
                 if (ObjectUtil.isNotNull(_categoryId)) {
-                    CmsCategory category = categoryList.stream().filter(m -> ObjectUtil.equal(m.getId(), _categoryId)).findFirst().orElse(null);
-                    if (ObjectUtil.isNotNull(category)) goodsVo.setCategoryName(category.getName());
+                    CmsGoodsCategory goodsCategory = goodsCategoryList.stream().filter(m -> ObjectUtil.equal(m.getId(), _categoryId)).findFirst().orElse(null);
+                    if (ObjectUtil.isNotNull(goodsCategory)) goodsVo.setCategoryName(goodsCategory.getName());
                 }
             }
         }
@@ -89,6 +92,7 @@ public class CmsGoodsServiceImpl implements ICmsGoodsService {
         Map<String, Object> params = bo.getParams();
         LambdaQueryWrapper<CmsGoods> wrapper = Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(bo.getName()), CmsGoods::getName, bo.getName());
+        wrapper.eq(StringUtils.isNotBlank(bo.getType()), CmsGoods::getType, bo.getType());
         wrapper.eq(ObjectUtil.isNotNull(bo.getCategoryId()), CmsGoods::getCategoryId, bo.getCategoryId());
         wrapper.eq(CmsGoods::getDelFlag, "0");
         if (StringUtils.equals("true", ObjectUtil.toString(params.get("select_usable")))) {
@@ -136,11 +140,13 @@ public class CmsGoodsServiceImpl implements ICmsGoodsService {
         // 查询当前房间信息
         CmsRoom room = roomMapper.selectById(roomId);
         if (ObjectUtil.equals(Boolean.TRUE, binding)) {
-            // 添加物品与房间的关联
+            /** 添加物品与房间的关联 */
             int rows = goodsMapper.update(null,
-                Wrappers.lambdaUpdate(CmsGoods.class)
+                new LambdaUpdateWrapper<CmsGoods>()
                     .set(CmsGoods::getRoomId, roomId)
                     .set(StringUtils.equals("2", room.getStatus()), CmsGoods::getStatus, "1")//若当前房间已入住,那么将物品设为使用状态
+                    .set(CmsGoods::getUpdateBy, LoginHelper.getUsername())
+                    .set(CmsGoods::getUpdateTime, DateUtils.getNowDate())
                     .eq(CmsGoods::getStatus, "0")
                     .in(CmsGoods::getId, ids)
             );
@@ -163,25 +169,29 @@ public class CmsGoodsServiceImpl implements ICmsGoodsService {
                 return rows > 0;
             }
         } else {
-            // 移除物品与房间的关联
+            /** 移除物品与房间的关联 */
             int rows = goodsMapper.update(null,
-                Wrappers.lambdaUpdate(CmsGoods.class)
+                new LambdaUpdateWrapper<CmsGoods>()
                     .set(CmsGoods::getRoomId, null)
                     .set(CmsGoods::getStatus, "0")
+                    .set(CmsGoods::getUpdateBy, LoginHelper.getUsername())
+                    .set(CmsGoods::getUpdateTime, DateUtils.getNowDate())
                     .in(CmsGoods::getId, ids)
             );
             if (rows > 0) {
                 // 查找并更新当前房间入住记录下的物品
                 int updateRecords = goodsRecordMapper.update(null,
-                    Wrappers.lambdaUpdate(CmsGoodsRecord.class)
+                    new LambdaUpdateWrapper<CmsGoodsRecord>()
                         .set(CmsGoodsRecord::getEndDate, DateUtil.beginOfDay(DateUtil.date()))
+                        .set(CmsGoodsRecord::getUpdateBy, LoginHelper.getUsername())
+                        .set(CmsGoodsRecord::getUpdateTime, DateUtils.getNowDate())
                         .eq(CmsGoodsRecord::getRoomId, roomId)
                         .eq(CmsGoodsRecord::getRoomRecordId, room.getRoomRecordId())
                         .isNull(CmsGoodsRecord::getEndDate)
                         .in(CmsGoodsRecord::getGoodsId, ids)
                 );
                 // 已入住的情况下,若更新物品换洗记录失败
-                if (StringUtils.equals("2", room.getStatus()) && updateRecords < 1) {
+                if (updateRecords < 1 && StringUtils.equals("2", room.getStatus())) {
                     throw new ServiceException("批量更新物品换洗记录失败, 请重试");
                 }
                 return true;

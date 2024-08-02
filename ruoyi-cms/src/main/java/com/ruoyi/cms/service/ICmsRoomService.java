@@ -42,9 +42,9 @@ public interface ICmsRoomService {
     Boolean updateByBo(CmsRoomBo bo);
 
     /**
-     * 旅客退房
+     * 宾客退房
      */
-    Boolean checkout(Long id);
+    Boolean checkout(Long id, String payStatus);
 
     /**
      * 校验并批量删除房间信息

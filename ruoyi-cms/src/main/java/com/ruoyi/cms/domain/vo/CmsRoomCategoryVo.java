@@ -1,42 +1,41 @@
 package com.ruoyi.cms.domain.vo;
 
-import lombok.Data;
+import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
- * 物品分类视图对象 biz_category
+ * 房间入住记录视图对象 biz_room_category
  *
  * @author ruoyi
- * @date 2023-08-01
+ * @date 2024-01-29
  */
 @Data
-public class CmsCategoryVo {
+@NoArgsConstructor
+public class CmsRoomCategoryVo implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 分类编号
+     * 客房类型编号
      */
     private Long id;
 
     /**
-     * 分类父编号
-     */
-    private Long parentId;
-
-    /**
-     * 分类排序
-     */
-    private Long sort;
-
-    /**
-     * 分类名称
+     * 客房类型名称
      */
     private String name;
 
     /**
-     * 分类状态（0正常 1关闭）
+     * 客房价格
      */
-    private String status;
+    private BigDecimal price;
+
+    /**
+     * 床位数
+     */
+    private Integer beds;
 
     /**
      * 创建者

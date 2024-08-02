@@ -30,15 +30,22 @@ public class CmsGuestVo {
     private String realname;
 
     /**
-     * 手机号码
+     * 联系方式
      */
-    @ExcelProperty(value = "手机号码")
-    private String phone;
+    @ExcelProperty(value = "联系方式")
+    private String contact;
 
     /**
-     * 用户状态（0正常 1停用）
+     * 宾客性别（0男 1女 2未知）
      */
-    @ExcelProperty(value = "用户状态", converter = ExcelDictConvert.class)
+    @ExcelProperty(value = "宾客性别", converter = ExcelDictConvert.class)
+    @ExcelDictFormat(readConverterExp = "0=男,1=女,2=未知")
+    private String sex;
+
+    /**
+     * 宾客状态（0正常 1停用）
+     */
+    @ExcelProperty(value = "宾客状态", converter = ExcelDictConvert.class)
     @ExcelDictFormat(readConverterExp = "0=正常,1=停用")
     private String status;
 

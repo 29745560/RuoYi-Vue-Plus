@@ -4,46 +4,42 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.ruoyi.common.core.domain.BaseEntity;
+import java.math.BigDecimal;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
- * 房间对象 biz_room
+ * 房间类型对象 biz_room_category
  *
  * @author ruoyi
- * @date 2023-08-01
+ * @date 2024-01-29
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-@TableName("biz_room")
-public class CmsRoom extends BaseEntity {
+@TableName("biz_room_category")
+public class CmsRoomCategory extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     /**
-     * 房间编号
+     * 客房类型编号
      */
     @TableId(value = "id")
     private Long id;
 
     /**
-     * 类型编号
-     */
-    private Long categoryId;
-
-    /**
-     * 房间名称
+     * 客房类型名称
      */
     private String name;
 
     /**
-     * 入住编号
+     * 价格
      */
-    private Long roomRecordId;
+    private BigDecimal price;
 
     /**
-     * 房间状态（0空闲中 1整理中 2入住中 9已关闭）
+     * 床位数
      */
-    private String status;
+    private Integer beds;
 
     /**
      * 删除标志（0正常 2删除）

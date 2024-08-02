@@ -10,6 +10,9 @@
         <result property="cardId" column="card_id"/>
         <result property="checkInDate" column="check_in_date"/>
         <result property="checkOutDate" column="check_out_date"/>
+        <result property="unitPrice" column="unit_price"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="pay" column="pay"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
         <result property="updateBy" column="update_by"/>
@@ -27,7 +30,8 @@
     <resultMap id="guestResult" type="CmsGuest">
         <id property="cardId" column="card_id"/>
         <result property="realname" column="realname"/>
-        <result property="phone" column="phone"/>
+        <result property="contact" column="contact"/>
+        <result property="sex" column="sex"/>
     </resultMap>
 
     <sql id="selectRoomRecordVo">
@@ -36,6 +40,9 @@
                r.card_id,
                r.check_in_date,
                r.check_out_date,
+               r.unit_price,
+               r.total_amount,
+               r.pay,
                r.create_by,
                r.create_time,
                r.update_by,
@@ -43,7 +50,8 @@
                r.remark,
                m.name as room_name,
                g.realname,
-               g.phone
+               g.contact,
+               g.sex
         from biz_room_record as r
                  left join biz_room as m on m.id = r.room_id
                  left join biz_guest as g on g.card_id = r.card_id

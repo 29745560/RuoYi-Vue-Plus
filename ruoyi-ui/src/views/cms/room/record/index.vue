@@ -16,13 +16,23 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="选择房间" prop="roomId">
+      <el-form-item label="选择客房" prop="roomId">
         <el-select v-model="queryParams.roomId" placeholder="请选择" clearable>
           <el-option
             v-for="room in roomList"
             :key="room.value"
             :value="room.value"
             :label="room.label"
+          />
+        </el-select>
+      </el-form-item>
+      <el-form-item label="支付状态" prop="pay">
+        <el-select v-model="queryParams.pay" placeholder="请选择" clearable>
+          <el-option
+            v-for="dict in payStatus.formatter"
+            :key="dict.value"
+            :value="dict.value"
+            :label="dict.label"
           />
         </el-select>
       </el-form-item>
@@ -108,7 +118,7 @@
                   <el-descriptions-item label="入住编号" :span="6">
                     {{ props.row.id }}
                   </el-descriptions-item>
-                  <el-descriptions-item label="房间编号" :span="6">
+                  <el-descriptions-item label="客房编号" :span="6">
                     {{ props.row.roomId }}
                   </el-descriptions-item>
                   <el-descriptions-item label="创建时间" :span="6">
@@ -130,7 +140,7 @@
         </template>
       </el-table-column>
       <el-table-column type="selection" width="45" align="center"/>
-      <el-table-column label="入住房间" prop="room.name" align="center" show-overflow-tooltip/>
+      <el-table-column label="入住客房" prop="room.name" align="center" show-overflow-tooltip/>
       <el-table-column label="身份证号" prop="cardId" align="center" show-overflow-tooltip/>
       <el-table-column label="入住日期" prop="checkInDate" align="center" width="160">
         <template slot-scope="scope">
@@ -140,6 +150,13 @@
       <el-table-column label="离店日期" prop="checkOutDate" align="center" width="160">
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.checkOutDate, '{y}/{m}/{d}') }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="客房单价" prop="unitPrice" align="center" :formatter="monFormatter"/>
+      <el-table-column label="消费总额" prop="totalAmount" align="center" :formatter="monFormatter"/>
+      <el-table-column label="支付状态" prop="pay" align="center" width="100">
+        <template slot-scope="scope">
+          <option-tag :options="payStatus" :value="scope.row.pay"/>
         </template>
       </el-table-column>
       <el-table-column label="备注" align="center" prop="remark" show-overflow-tooltip/>
@@ -173,7 +190,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改房间入住记录对话框 -->
+    <!-- 添加或修改客房入住记录对话框 -->
     <el-dialog
       :title="title"
       :visible.sync="open"
@@ -185,7 +202,7 @@
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <template v-if="isnull(form.id)">
-          <el-form-item label="入住房间" prop="roomId">
+          <el-form-item label="入住客房" prop="roomId">
             <el-select v-model="form.roomId" placeholder="请选择" clearable>
               <el-option
                 v-for="room in roomList"
@@ -217,11 +234,21 @@
             />
           </el-form-item>
         </template>
-        <el-form-item label="旅客姓名" prop="realname">
+        <el-form-item label="宾客姓名" prop="realname">
           <el-input v-model="form.realname" placeholder="请填写" maxlength="50" clearable/>
         </el-form-item>
-        <el-form-item label="旅客电话" prop="phone">
-          <el-input v-model="form.phone" placeholder="请填写" maxlength="50" clearable/>
+        <el-form-item label="联系方式" prop="contact">
+          <el-input v-model="form.contact" placeholder="请填写" maxlength="50" clearable/>
+        </el-form-item>
+        <el-form-item label="宾客性别" prop="sex">
+          <el-radio-group v-model="form.sex">
+            <el-radio
+              v-for="dict in guestSex.formatter"
+              :key="dict.value"
+              :label="dict.value"
+            >{{ dict.label }}
+            </el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="备注信息" prop="remark">
           <el-input
@@ -270,9 +297,9 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 房间入住记录表格数据
+      // 客房入住记录表格数据
       recordList: [],
-      // 房间表格数据
+      // 客房表格数据
       roomList: [],
       // 弹出层标题
       title: "",
@@ -286,6 +313,7 @@ export default {
         pageSize: 10,
         roomId: null,
         cardId: null,
+        pay: null,
       },
       // 表单参数
       form: {},
@@ -302,6 +330,9 @@ export default {
           {required: true, type: 'array', message: '请选择入住离店日期', trigger: 'change'},
         ],
       },
+      //支付状态
+      payStatus: this.CmsDic.room.records.pay,
+      guestSex: this.CmsDic.guest.sex,
     };
   },
   computed: {
@@ -318,7 +349,7 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询房间入住记录列表 */
+    /** 查询客房入住记录列表 */
     getList() {
       this.loading = true;
       listRoom({}).then(response => {
@@ -337,6 +368,9 @@ export default {
         this.loading = false;
       });
     },
+    monFormatter(row, column, cellValue) {
+      return `￥${cellValue}`;
+    },
     // 取消按钮
     cancel() {
       this.open = false;
@@ -350,11 +384,13 @@ export default {
         cardId: null,
         checkInDate: null,
         checkOutDate: null,
+        pay: 0,
         dateRange: [],
         remark: null,
-        // 以下为旅客信息
+        // 以下为宾客信息
         realname: null,
-        phone: null,
+        contact: null,
+        sex: "0",
       };
       this.resetForm("form");
     },
@@ -379,7 +415,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加房间入住记录";
+      this.title = "添加客房入住记录";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -392,6 +428,10 @@ export default {
           id: data.id,
           roomId: data.roomId,
           cardId: data.cardId,
+          pay: data.pay,
+          realname: data.guest.realname,
+          contact: data.guest.contact,
+          sex: data.guest.sex,
           remark: data.remark,
         };
         if (!this.isnull(data.checkInDate) && !this.isnull(data.checkOutDate)) {
@@ -400,7 +440,7 @@ export default {
         this.form = formValues;
         this.loading = false;
         this.open = true;
-        this.title = "修改房间入住记录";
+        this.title = "修改客房入住记录";
       });
     },
     /** 提交按钮 */
@@ -437,7 +477,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除房间入住记录编号为"' + ids + '"的数据项？').then(() => {
+      this.$modal.confirm('是否确认删除客房入住记录编号为"' + ids + '"的数据项？').then(() => {
         this.loading = true;
         return delRoomRecord(ids);
       }).then(() => {
@@ -445,7 +485,6 @@ export default {
         this.getList();
         this.$modal.msgSuccess("删除成功");
       }).catch(() => {
-      }).finally(() => {
         this.loading = false;
       });
     },

@@ -35,7 +35,7 @@ export default {
   },
   data() {
     return {
-      title: 'RuoYi-Vue-Plus',
+      title: 'XX酒店管理系统',
       logo: logoImg
     }
   }

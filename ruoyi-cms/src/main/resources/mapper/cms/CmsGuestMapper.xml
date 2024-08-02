@@ -7,7 +7,8 @@
     <resultMap type="CmsGuest" id="CmsGuestResult">
         <id property="cardId" column="card_id"/>
         <result property="realname" column="realname"/>
-        <result property="phone" column="phone"/>
+        <result property="contact" column="contact"/>
+        <result property="sex" column="sex"/>
         <result property="status" column="status"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>

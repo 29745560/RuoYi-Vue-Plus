@@ -8,7 +8,7 @@
       v-show="showSearch"
       label-width="68px"
     >
-      <el-form-item label="房间名称" prop="name">
+      <el-form-item label="客房名称" prop="name">
         <el-input
           v-model="queryParams.name"
           placeholder="请填写"
@@ -24,7 +24,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="房间状态" prop="status">
+      <el-form-item label="客房状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="请选择" clearable>
           <el-option
             v-for="dict in roomStatus.formatter"
@@ -91,7 +91,7 @@
                   :colon="false"
                   border
                 >
-                  <el-descriptions-item label="房间编号" :span="6">
+                  <el-descriptions-item label="客房编号" :span="6">
                     {{ props.row.id }}
                   </el-descriptions-item>
                   <el-descriptions-item label="入住编号" :span="6">
@@ -109,6 +109,9 @@
                   <el-descriptions-item label="更新者" :span="6">
                     {{ props.row.updateBy }}
                   </el-descriptions-item>
+                  <el-descriptions-item label="备注信息" :span="12">
+                    {{ props.row.remark }}
+                  </el-descriptions-item>
                 </el-descriptions>
               </div>
             </el-col>
@@ -116,14 +119,17 @@
         </template>
       </el-table-column>
       <el-table-column type="selection" width="45" align="center"/>
-      <el-table-column label="房间名称" prop="name" align="center" show-overflow-tooltip/>
-      <el-table-column label="房间状态" prop="status" align="center" width="120">
+      <el-table-column label="客房名称" prop="name" align="center" show-overflow-tooltip/>
+      <el-table-column label="客房类型" prop="categoryId" align="center" :formatter="categoryNameFormatter"
+                       show-overflow-tooltip/>
+      <el-table-column label="客房价格" prop="categoryId" align="center" :formatter="categoryPriceFormatter"/>
+      <el-table-column label="客房床位" prop="categoryId" align="center" :formatter="categoryBedsFormatter"/>
+      <el-table-column label="客房状态" prop="status" align="center" width="120">
         <template slot-scope="scope">
           <option-tag :options="roomStatus" :value="scope.row.status"/>
         </template>
       </el-table-column>
-      <el-table-column label="备注" prop="remark" align="center" show-overflow-tooltip/>
-      <el-table-column label="操作" class-name="small-padding fixed-width" align="center">
+      <el-table-column label="操作" class-name="small-padding fixed-width" align="center" fixed="right">
         <template slot-scope="scope">
           <!-- 退房操作 -->
           <el-button
@@ -172,7 +178,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改房间对话框 -->
+    <!-- 添加或修改客房对话框 -->
     <el-dialog
       :title="title"
       :visible.sync="open"
@@ -183,10 +189,20 @@
       append-to-body
     >
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="房间名称" prop="name">
+        <el-form-item label="客房名称" prop="name">
           <el-input v-model="form.name" placeholder="请填写" maxlength="50" clearable/>
         </el-form-item>
-        <el-form-item label="房间状态" prop="status">
+        <el-form-item v-if="form.status==='0'" label="客房类型" prop="categoryId">
+          <el-select v-model="form.categoryId" placeholder="请选择">
+            <el-option
+              v-for="dict in roomCategoryList"
+              :key="dict.id"
+              :label="dict.name"
+              :value="dict.id"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="客房状态" prop="status">
           <el-radio-group v-model="form.status">
             <el-radio
               v-for="dict in roomStatus.formatter"
@@ -224,6 +240,7 @@ import {
   delRoom,
   checkoutRoom,
 } from "@/api/cms/room";
+import {listRoomCategory} from "@/api/cms/roomCategory";
 
 export default {
   name: "CmsRoom",
@@ -244,8 +261,10 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 房间表格数据
+      // 客房表格数据
       roomList: [],
+      // 客房类型列表
+      roomCategoryList: [],
       // 弹出层标题
       title: "",
       // 是否显示弹出层
@@ -255,6 +274,7 @@ export default {
         pageNum: 1,
         pageSize: 10,
         name: null,
+        categoryId: null,
         roomRecordId: null,
         status: null,
       },
@@ -263,7 +283,10 @@ export default {
       // 表单校验
       rules: {
         name: [
-          {required: true, message: "房间名称不能为空", trigger: "blur"},
+          {required: true, message: "客房名称不能为空", trigger: "blur"},
+        ],
+        categoryId: [
+          {required: true, message: "请选择客房类型", trigger: ["blur", "change"]},
         ],
       },
       // 字典
@@ -274,14 +297,29 @@ export default {
     this.getList();
   },
   methods: {
-    /** 查询房间列表 */
+    /** 查询客房列表 */
     getList() {
       this.loading = true;
-      listRoom(this.queryParams).then(response => {
+      listRoomCategory({}).then(response => {
+        this.roomCategoryList = response.data;
+        return listRoom(this.queryParams);
+      }).then(response => {
         this.roomList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
+    },
+    categoryNameFormatter(row, column, cellValue) {
+      const category = this.roomCategoryList.find(i => i.id === cellValue);
+      return this.isnull(category) ? "" : (category.name || "");
+    },
+    categoryPriceFormatter(row, column, cellValue) {
+      const category = this.roomCategoryList.find(i => i.id === cellValue);
+      return this.isnull(category) ? "-" : `￥${(category.price || '-')}`;
+    },
+    categoryBedsFormatter(row, column, cellValue) {
+      const category = this.roomCategoryList.find(i => i.id === cellValue);
+      return this.isnull(category) ? "-" : `${(category.beds || '-')}床`;
     },
     // 取消按钮
     cancel() {
@@ -293,6 +331,7 @@ export default {
       this.form = {
         id: null,
         name: null,
+        categoryId: null,
         roomRecordId: null,
         status: "0",
         remark: null,
@@ -319,7 +358,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加房间";
+      this.title = "添加客房";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -330,7 +369,7 @@ export default {
         this.loading = false;
         this.form = response.data;
         this.open = true;
-        this.title = "修改房间";
+        this.title = "修改客房";
       });
     },
     /** 提交按钮 */
@@ -361,7 +400,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除房间编号为"' + ids + '"的数据项？').then(() => {
+      this.$modal.confirm('是否确认删除编号为"' + ids + '"的客房？').then(() => {
         this.loading = true;
         return delRoom(ids);
       }).then(() => {
@@ -369,7 +408,6 @@ export default {
         this.getList();
         this.$modal.msgSuccess("删除成功");
       }).catch(() => {
-      }).finally(() => {
         this.loading = false;
       });
     },
@@ -384,22 +422,32 @@ export default {
       })
     },
     /**
-     * 旅客退房
+     * 宾客退房
      */
     handleCheckout(row) {
       const id = row.id;
       const name = row.name;
-      this.$modal.confirm('是否确认退房？房间：' + name).then(() => {
-        this.loading = true;
-        return checkoutRoom(id);
+      this.$confirm('客房[' + name + '] 确认退房？', '系统提示', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '已支付',
+        cancelButtonText: '未支付',
       }).then(() => {
-        this.loading = false;
-        this.getList();
-        this.$modal.msgSuccess("退房成功");
-      }).catch(() => {
-      }).finally(() => {
-        this.loading = false;
-      });
+        //已支付
+        checkoutRoom(id, "1").then(() => {
+          this.loading = false;
+          this.getList();
+          this.$modal.msgSuccess("退房成功");
+        })
+      }).catch(action => {
+        //未支付
+        if (action === 'cancel') {
+          checkoutRoom(id, "0").then(() => {
+            this.loading = false;
+            this.getList();
+            this.$modal.msgSuccess("退房成功");
+          })
+        }
+      })
     },
   },
 };

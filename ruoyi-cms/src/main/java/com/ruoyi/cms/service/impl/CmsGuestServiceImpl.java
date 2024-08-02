@@ -51,7 +51,8 @@ public class CmsGuestServiceImpl implements ICmsGuestService {
         LambdaQueryWrapper<CmsGuest> wrapper = Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(bo.getRealname()), CmsGuest::getRealname, bo.getRealname());
         wrapper.eq(StringUtils.isNotBlank(bo.getCardId()), CmsGuest::getCardId, bo.getCardId());
-        wrapper.eq(StringUtils.isNotBlank(bo.getPhone()), CmsGuest::getPhone, bo.getPhone());
+        wrapper.eq(StringUtils.isNotBlank(bo.getContact()), CmsGuest::getContact, bo.getContact());
+        wrapper.eq(StringUtils.isNotBlank(bo.getSex()), CmsGuest::getSex, bo.getSex());
         wrapper.eq(StringUtils.isNotBlank(bo.getStatus()), CmsGuest::getStatus, bo.getStatus());
         return wrapper;
     }

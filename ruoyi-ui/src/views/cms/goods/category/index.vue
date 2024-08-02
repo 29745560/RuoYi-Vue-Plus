@@ -40,7 +40,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAdd"
-          v-hasPermi="['cms:category:add']"
+          v-hasPermi="['cms:goods.category:add']"
         >新增
         </el-button>
       </el-col>
@@ -80,7 +80,7 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
-            v-hasPermi="['cms:category:edit']"
+            v-hasPermi="['cms:goods.category:edit']"
           >修改
           </el-button>
           <el-button
@@ -88,7 +88,7 @@
             type="text"
             icon="el-icon-plus"
             @click="handleAdd(scope.row)"
-            v-hasPermi="['cms:category:add']"
+            v-hasPermi="['cms:goods.category:add']"
           >新增
           </el-button>
           <el-button
@@ -96,7 +96,7 @@
             type="text"
             icon="el-icon-delete"
             @click="handleDelete(scope.row)"
-            v-hasPermi="['cms:category:remove']"
+            v-hasPermi="['cms:goods.category:remove']"
           >删除
           </el-button>
         </template>
@@ -159,17 +159,17 @@
 
 <script>
 import {
-  listCategory,
-  getCategory,
-  addCategory,
-  updateCategory,
-  delCategory,
-} from "@/api/cms/category";
+  listGoodsCategory,
+  getGoodsCategory,
+  addGoodsCategory,
+  updateGoodsCategory,
+  delGoodsCategory,
+} from "@/api/cms/goodsCategory.js";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 
 export default {
-  name: "CmsCategory",
+  name: "CmsGoodsCategory",
   components: {
     Treeselect,
   },
@@ -207,7 +207,7 @@ export default {
         ],
       },
       // 字典
-      categoryStatus: this.CmsDic.category.status,
+      categoryStatus: this.CmsDic.goods.category.status,
     };
   },
   created() {
@@ -217,7 +217,7 @@ export default {
     /** 查询物品分类列表 */
     getList() {
       this.loading = true;
-      listCategory(this.queryParams).then(response => {
+      listGoodsCategory(this.queryParams).then(response => {
         this.categoryList = this.handleTree(response.data, "id", "parentId");
         this.loading = false;
       });
@@ -235,7 +235,7 @@ export default {
     },
     /** 查询物品分类下拉树结构 */
     getTreeselect() {
-      listCategory().then(response => {
+      listGoodsCategory().then(response => {
         this.categoryOptions = [];
         const data = {id: 0, name: '顶级节点', children: []};
         data.children = this.handleTree(response.data, "id", "parentId");
@@ -296,7 +296,7 @@ export default {
       if (row != null) {
         this.form.parentId = row.id;
       }
-      getCategory(row.id).then(response => {
+      getGoodsCategory(row.id).then(response => {
         this.loading = false;
         this.form = response.data;
         this.open = true;
@@ -309,7 +309,7 @@ export default {
         if (valid) {
           this.buttonLoading = true;
           if (this.form.id != null) {
-            updateCategory(this.form).then(response => {
+            updateGoodsCategory(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
@@ -317,7 +317,7 @@ export default {
               this.buttonLoading = false;
             });
           } else {
-            addCategory(this.form).then(response => {
+            addGoodsCategory(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;
               this.getList();
@@ -332,7 +332,7 @@ export default {
     handleDelete(row) {
       this.$modal.confirm('是否确认删除物品分类编号为"' + row.id + '"的数据项？').then(() => {
         this.loading = true;
-        return delCategory(row.id);
+        return delGoodsCategory(row.id);
       }).then(() => {
         this.loading = false;
         this.getList();

@@ -5,7 +5,7 @@ spring.boot.admin.client:
   url: http://localhost:9090/admin
   instance:
     service-host-type: IP
-  username: ruoyi
+  username: admin
   password: 123456
 
 --- # xxl-job 配置
